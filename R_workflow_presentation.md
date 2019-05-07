@@ -4,13 +4,14 @@ author: Alzbeta (Betka) Talarovicova
 date: 
 autosize: true
 
-Intro
+Template project
 ========================================================
 
-- Typical experiment
-- Organize your files
-- Version control
-- Resources
+- Project:  
+[https://github.com/Talqa/project_woRkflow](https://github.com/Talqa/project_woRkflow)
+
+- Data:  
+[https://bit.ly/2H4H0gs](https://bit.ly/2H4H0gs)
 
 Typical experiment
 ========================================================
@@ -23,17 +24,19 @@ Typical experiment
 - Reports
 - Manuscript
 
-Organize your files
+Organize your files and docs
 ========================================================
 
 - File names
 - Folder structure
+- Write human (you in 6 months) readable code
 - You can write text in R (Rmarkdown)
 
 Version control
 ========================================================
 
 - Git and GitHub
+- .gitignore
 
 Blogs and tutorials
 ========================================================
