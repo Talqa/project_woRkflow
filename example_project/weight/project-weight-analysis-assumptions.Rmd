@@ -1,0 +1,206 @@
+---
+title: "Tempest calibrations 2019: weight analysis - assumptions"
+author: "Liara T'Soni"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+# set global chunk options
+knitr::opts_chunk$set(echo = FALSE) # set TRUE if you want to have code in the report
+options(knitr.table.format = "html") # set 'latex' if you want to print to pdf
+```
+
+```{r libraries, include = FALSE}
+library('knitr')
+library('tidyverse')
+library('kableExtra') # for nice tables
+# install.packages("kableExtra")
+library('gridExtra') #for plot arrangement
+library('DescTools') #for AUC and assumptions calculation
+# install.packages('DescTools')
+```
+  
+## Overview  
+  
+  This report covers all data manipulation performed during data cleaning process and evaluation of variables for assumptions of normal distribution and homogeneity of variance. Data evaluated here are the weight measures. For detailed description of methods used please refer to *project_overview.Rmd*.  
+  
+```{r data, include = FALSE}
+#data <- read_csv('example_project/weight/cleandata/project-weight-cleandata.csv') #for work with chunks
+data <- read_csv('cleandata/project-weight-cleandata.csv') #for knitting
+
+#separate data into groups
+group_A <- data %>% filter(treatment == 'A')
+group_B <- data %>% filter(treatment == 'B')
+
+```
+
+```{r helper_funcs, include = FALSE}
+#HELPER FUNCTIONS-------------------------------------------------------------------------------
+normal_check <- function(select_data) {
+  #checks for normality of the sample, returns W and p-value
+  test <- shapiro.test(select_data)
+  return(c(W = round(test$statistic, 3),
+           p_value = round(test$p.value, 3)))
+}
+
+variance_check <- function(dataframe, select_data) {
+  #null hypothesis is that all populations variances are equal; the alternative hypothesis is that at least two of them differ
+  #checks for homogeneity of variance of the sample, returns df, F value, and p-value
+  test <- LeveneTest(select_data ~ treatment, data = dataframe)
+  return(c(Df = test$Df,
+           F_value = round(test$`F value`[1], 3),
+           p_value = round(test$P[1], 3)))
+}
+
+
+data_summary_SE <- function(x) {
+  #calculates mean, SE, and interval +- SE
+  m <- mean(x)
+  se <- sd(x)/sqrt(length(x))
+  ymin <- m - se
+  ymax <- m + se
+
+  return(c(mean=m, sem=sem, mean_minus_se=ymin ,mean_plus_se=ymax))
+}
+
+plot_hist_dens <- function(variable, x_text) {
+  #plots histograms and density plots for 2 treatments
+  ggplot(data, aes(x = variable, colour = treatment)) + 
+  geom_histogram(aes(y = ..density..),
+                 fill = 'white',
+                 position = 'dodge',
+                 bins = 10) +
+  geom_density(size = 1) +
+  scale_color_manual(values = c('orange', 'blue'),
+                     breaks = c('A', 'B')) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position = "none",
+        plot.title = element_text(hjust = 0.5), 
+        plot.subtitle = element_text(face = "italic", hjust = 0.5), 
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        strip.background = element_blank()) +
+  labs(x = x_text, 
+       y = 'Density')
+}
+
+
+plot_qq <- function(variable, y_text){
+  #plots qq plot for 2 treatments
+  ggplot(data, aes(sample = variable, colour = treatment)) + 
+  geom_point(stat = 'qq') +
+  geom_abline(intercept = mean(variable), slope = sd(variable), size = 1) +
+  scale_color_manual(values = c('orange', 'blue'),
+                     breaks = c('A', 'B')) +
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position = "none",
+        plot.title = element_text(hjust = 0.5), 
+        plot.subtitle = element_text(face = "italic", hjust = 0.5), 
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        strip.background = element_blank()) +
+  labs(x = 'normal', 
+       y = y_text)
+}
+
+#---
+```
+
+  
+## Data cleanup  
+  
+#### First measurement  
+  
+  Describe conditions based on which data points were included or excluded. 
+
+## Sample size     
+  
+  Sample size for data per group are as follows:  
+```{r sample_size}
+sample_size <- data %>% 
+  group_by(treatment) %>% 
+  summarise(`sample size` = n())
+
+kable(sample_size, escape = FALSE) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F)
+
+```
+  
+## Assumptions check  
+  
+  Check for normality and homogeneity of variance was performed using Shapiro-Wilk and Levene's test.  *Shapiro-Wilk test* for normality showed that ...(describe result here)... normally distributed.   On the other hand, *Levene's test* for homogeneity of variance showed that ...(describe result here. e.g. all variables have equal variances)... .  Results from assumption tests are summarised below.  
+  
+  
+```{r assumptions_check, warning = FALSE}
+#Shapiro test
+group_A_norm <- as.data.frame(data.frame(lapply(group_A[2:10], normal_check)) %>% t()) %>% 
+  rename(W = W.W) %>% 
+  mutate(variable = row.names(.),
+         W = W,
+         p_value = cell_spec(p_value, bold = ifelse(p_value < 0.05, TRUE, FALSE))) %>% 
+  select(variable, W, p_value)
+
+group_B_norm <- as.data.frame(data.frame(lapply(group_B[2:10], normal_check)) %>% t()) %>% 
+  rename(W = W.W) %>% 
+  mutate(variable = row.names(.),
+         W = W,
+         p_value = cell_spec(p_value, bold = ifelse(p_value < 0.05, TRUE, FALSE))) %>% 
+  select(variable, W, p_value)
+
+data_normal <- left_join(group_A_norm, group_B_norm, by = 'variable')
+
+
+#display data in table
+s_w_table_names <- c('variable','W', 'p value', 'W', 'p value')
+kable(data_normal, escape = FALSE, col.names = s_w_table_names) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F) %>% 
+  add_header_above(c(' ' = 1, 'Group A' = 2, 'Group B' = 2)) %>%  #check if this holds when you change order in df
+  add_header_above(c(' ' = 1, 'Shapiro-Wilk test of normality' = 4)) %>% 
+  footnote(general_title = 'Bold',
+           general = 'p value < 0.05, distribution is not normal',
+           footnote_as_chunk = TRUE)
+
+# -------------------------------------------
+#Levene test
+data_variance <- as.data.frame(data.frame(lapply(data[2:10], variance_check, dataframe = data)) %>% t()) %>% 
+  mutate(variable = row.names(.),
+         Df1 = Df1,
+         Df2 = Df2,
+         `F value` = F_value,
+         `p value` = cell_spec(p_value, bold = ifelse(p_value < 0.05, TRUE, FALSE))) %>%
+  select(variable, Df1, Df2, `F value`, `p value`) %>% 
+  unite(Df, Df1, Df2, sep = ', ')
+#View(data_variance)
+
+#display data in table
+kable(data_variance, escape = FALSE) %>% 
+  kable_styling(bootstrap_options = "striped", full_width = F) %>% 
+  add_header_above(c(' ' = 1, 'Levene test of homogeneity of variance' = 3)) %>% 
+  footnote(general_title = 'Bold',
+           general = 'p value < 0.05, homogeneity of variance violated',
+           footnote_as_chunk = TRUE)
+
+```
+  
+  ***  
+  
+  Below is a set of plots showing distribution of variables of interest and their comparison with normal distribution in qqplot. Blue = Group A, yellow = Group B   
+  
+```{r histograms}
+#create plots for all variables
+#group pairs of histograms and qq plots
+
+hist <- plot_hist_dens(data$`2019-03-04`, 'Weight [g]')
+qq <- plot_qq(data$`2019-03-04`, 'Weight [g]')
+grid.arrange(hist, qq, ncol = 2, top = 'Weight of parts on 2019-03-04')
+
+```
+  
+  ***  
+  
+  
+  

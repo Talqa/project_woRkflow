@@ -1,0 +1,39 @@
+---
+title: Title of my project - methods report
+author: "Your Name"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+## Methods
+  
+  Here you write everything that was done and how it was done on the project.  
+  
+### Preparation of solutions
+  
+  All solutions were prepared based on this methodology/protocol.
+  
+  You can have as many paragraphs as you want.  
+  
+  To add calculations, you can use scientific notation:  
+  
+  This is alpha $\alpha$. 
+  
+  \[ \alpha + \beta = \gamma \]
+    
+  
+### Random assignment  
+  Groups were randomly selected based on weight of parts to allow for equal weight distribution between groups.   
+  
+  
+### Recording callibrations  
+  Parts were weight weekly. Each part was placed on scale (brand name, manufacturer name) and its weight was recorded. After returning the part into the board, it was callibrated using software (manufacturer name).   
+  
+
+#### Notes  
+  You can find more examples of Rmarkdown here:  
+  
+  [http://www.stat.cmu.edu/~cshalizi/rmarkdown/#math-in-r-markdown](http://www.stat.cmu.edu/~cshalizi/rmarkdown/#math-in-r-markdown)
