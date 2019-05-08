@@ -3,9 +3,9 @@ title: Title of my project - methods report
 author: "Your Name"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
-  html_document: default
   word_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ## Methods

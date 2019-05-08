@@ -4,15 +4,6 @@ author: Alzbeta (Betka) Talarovicova
 date: 
 autosize: true
 
-Template project
-========================================================
-
-- Project:  
-[https://github.com/Talqa/project_woRkflow](https://github.com/Talqa/project_woRkflow)
-
-- Data:  
-[https://bit.ly/2H4H0gs](https://bit.ly/2H4H0gs)
-
 Typical experiment
 ========================================================
 
@@ -23,6 +14,15 @@ Typical experiment
 - Data analysis
 - Reports
 - Manuscript
+
+Template project
+========================================================
+
+- Project:  
+[https://github.com/Talqa/project_woRkflow](https://github.com/Talqa/project_woRkflow)
+
+- Data:  
+[https://bit.ly/2H4H0gs](https://bit.ly/2H4H0gs)
 
 Organize your files and docs
 ========================================================
