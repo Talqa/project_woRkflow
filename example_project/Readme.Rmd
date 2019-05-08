@@ -1,8 +1,4 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
+
 ## NAME OF MY PROJECT 2019
 
 ### Introduction - project abstract
